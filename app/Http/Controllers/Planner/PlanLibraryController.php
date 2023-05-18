@@ -23,6 +23,19 @@ class PlanLibraryController extends Controller
     public function getAllPlanLibrary(Request $request)
     {
         try {
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
             $search = $request->search;
             $filter = $request->filter;
             $paginate = $request->paginate ?? 4;
@@ -64,6 +77,19 @@ class PlanLibraryController extends Controller
         
         DB::beginTransaction();
         try{
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
             $validator = Validator::make($request->all(), [
                 'task_id' => 'required',
                 'client_user_id' => 'required',
@@ -178,6 +204,19 @@ class PlanLibraryController extends Controller
         
         DB::beginTransaction();
         try {
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
             $data_bulk = json_decode(file_get_contents('php://input'));
             if (!$data_bulk) {
                 return response()->json([
@@ -283,6 +322,19 @@ class PlanLibraryController extends Controller
     {
         DB::beginTransaction();
         try {
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
             $validate = Validator::make($request->all(), [
                 'import_file' => 'required|mimes:csv,xls,xlsx',
             ]);
@@ -430,7 +482,25 @@ class PlanLibraryController extends Controller
     {
         DB::beginTransaction();
         try {
-            $planLibrary = planLibrary::findOrFail($id);
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
+            $planLibrary = planLibrary::where('plan_libraries.id', $id)
+                ->join('users', 'users.id', '=', 'plan_libraries.member_user_id')
+                ->join('roles', 'roles.id', '=', 'users.role_id')
+                ->where('roles.name', 'Planner')
+                ->select('plan_libraries.id as id', 'plan_libraries.status as status')
+                ->first();
             if(!$planLibrary){
                 return response()->json([
                     'meta' => [
@@ -462,11 +532,12 @@ class PlanLibraryController extends Controller
                     'data'  => []
                 ], 422);
             }
-
-            $planLibrary->status = "approved";
-            $planLibrary->approved_at = Carbon::now()->format('Y-m-d H:i:s');
-            $planLibrary->approved_by = Auth::id();
-            $planLibrary->save();
+            PlanLibrary::where('id', $id)
+                ->update([
+                    'status'        => 'approved',
+                    'approved_at'   => Carbon::now()->format('Y-m-d H:i:s'),
+                    'approved_by'   => Auth::id()
+                ]);
             
             $check_member_assign = MemberAssign::where('client_user_id', $planLibrary->client_user_id)
                 ->where('member_user_id', $planLibrary->member_user_id)
@@ -506,6 +577,19 @@ class PlanLibraryController extends Controller
     {
         DB::beginTransaction();
         try {
+            $user = Auth::user();
+            if($user->role_id != 1){
+                $response = array(
+                    'meta'  => [
+                        'status'    => 'failed', 
+                        'code'      => 400, 
+                        'message'   => 'Sorry you not have access!'
+                    ],
+                    'data'  => []
+                );
+
+                return response()->json($response, 400);
+            }
             $planLibrary = PlanLibrary::where('id', $id)
                 ->select('id', 'status')
                 ->first();
