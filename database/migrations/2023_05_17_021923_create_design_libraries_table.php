@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('design_libraries', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('task_id');
+            $table->bigInteger('task_design_id');
             $table->bigInteger('client_user_id');
             $table->bigInteger('member_user_id');
             $table->bigInteger('category_id');
             $table->string('design_title');
+            $table->string('design_path', 191);
             $table->enum('status', ['approved', 'pending', 'not_active', 'need_edit'])->default('pending');
+            $table->bigInteger('approved_by');
+            $table->dateTime('approved_at');
             $table->timestamps();
         });
     }

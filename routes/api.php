@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Design\DesignLibraryController;
 use App\Http\Controllers\Planner\PlanLibraryController;
 use App\Http\Controllers\User\ClientController;
 use App\Http\Controllers\User\UserController;
@@ -48,6 +49,13 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/import-excel', [PlanLibraryController::class, 'importExcelPlanLibrary']);
         Route::post('/approve/{id}', [PlanLibraryController::class, 'planApprove']);
         Route::delete('/delete/{id}', [PlanLibraryController::class, 'deletePlan']);
+    });
+    
+    Route::group(['prefix' => 'v1/design-library'], function() {
+        Route::get('/list', [DesignLibraryController::class, 'getAllDesignLibrary']);
+        Route::post('/store', [DesignLibraryController::class, 'store']);
+        Route::post('/approve/{id}', [DesignLibraryController::class, 'designApprove']);
+        Route::delete('/delete/{id}', [DesignLibraryController::class, 'deleteDesign']);
     });
 
     Route::group(['prefix' => 'v1/client'], function() {

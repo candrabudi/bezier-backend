@@ -47,6 +47,7 @@ class PlanLibraryController extends Controller
                 ->when($filter, function ($query) use ($filter) {
                     return $query->where('status', $filter);
                 })
+                ->with('member', 'client', 'approvedBy')
                 ->orderBy('id', 'ASC')
                 ->paginate($paginate);
 
