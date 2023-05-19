@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Design\DesignLibraryController;
 use App\Http\Controllers\Planner\PlanLibraryController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\User\ClientController;
 use App\Http\Controllers\User\UserController;
 
@@ -60,6 +61,9 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::group(['prefix' => 'v1/client'], function() {
         Route::post('/create-task', [ClientController::class, 'createTaskPlan']);
+    });
+    Route::group(['prefix' => 'v1/report'], function() {
+        Route::get('/list-tasks', [ReportController::class, 'listReportTask']);
     });
 
 });
