@@ -30,6 +30,7 @@ class TaskClient extends Model
     {
         return $this->hasMany(MemberAssign::class, 'client_user_id', 'id')
             ->join('users', 'users.id', '=', 'member_assigns.member_user_id')
-            ->select('client_user_id', 'users.full_name', 'photo_profile_url');
+            ->select('client_user_id', 'member_user_id','users.full_name', 'photo_profile_url')
+            ->with();
     }
 }

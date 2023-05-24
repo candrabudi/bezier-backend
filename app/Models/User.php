@@ -66,6 +66,13 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Role::class);
     }
 
+    public function memberAssign()
+    {
+        return $this->hasMany(TaskPlanMember::class, 'client_user_id', 'id')
+            ->join('users', 'users.id', '=', 'member_assigns.member_user_id')
+            ->select('client_user_id', 'users.full_name', 'photo_profile_url');
+    }
+
     public function getPhotoProfileUrlAttribute($value)
     {
         return !empty($value) ? url(\Storage::url($value)) : null;

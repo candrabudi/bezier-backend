@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PlanPost;
 use App\Models\TaskClient;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 class ReportController extends Controller
@@ -64,6 +66,58 @@ class ReportController extends Controller
                 'data'  => $allTasks
             ], 200);
 
+        }catch(\Exception $e){
+            return response()->json([
+                'meta' => [
+                    'status'    => 'failed', 
+                    'code'      => 500, 
+                    'message'   => 'Internal Server Error!'
+                ],
+                'data'  => [
+                    'error' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    public function detailReportTaskPlan(Request $request, $client_user_id)
+    {
+        try{
+            $search = $request->search;
+            $page = $request->page ? $request->page : 1;
+            $limits = $request->total_per_page ? $request->total_per_page : 6;
+            $offset = ($page - 1) * $limits;
+            $postUser = User::when($search, function ($query) use ($search) {
+                    return $query->where('users.name', 'LIKE', '%' . $search . '%');
+                })
+                ->join('plan_libraries as pl', 'pl.member_user_id', '=', 'users.id')
+                ->join('plan_posts as pp', 'pp.plan_library_id', '=', 'pl.id')
+                ->where('pl.client_user_id', $client_user_id)
+                ->select(
+                    'users.id as user_id',
+                    'pp.id as plan_post_id',
+                    'pl.id as plan_library_id',
+                    'users.full_name', 
+                    'users.photo_profile_url', 
+                    'post as plan_post', 
+                    'caption as plan_caption', 
+                    'hastag as plan_hastag',
+                );
+
+            $postCount = $postUser->count();
+            $postData = $postUser->orderBy('pp.id', 'ASC')
+                                ->limit($limits)
+                                ->offset($offset)
+                                ->get();
+            $allPostsi = new LengthAwarePaginator($postData, $postCount, $limits);
+            return response()->json([
+                'meta'  => [
+                    'status'    => 'success',
+                    'code'      => 200,
+                    'message'   => 'Successfully get data list post by client'
+                ],
+                'data'  => $allPostsi
+            ], 200);
         }catch(\Exception $e){
             return response()->json([
                 'meta' => [

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Design\DesignLibraryController;
 use App\Http\Controllers\Planner\PlanLibraryController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Planner\PlanPostController;
 use App\Http\Controllers\User\ClientController;
 use App\Http\Controllers\User\UserController;
 
@@ -51,6 +52,17 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/approve/{id}', [PlanLibraryController::class, 'planApprove']);
         Route::delete('/delete/{id}', [PlanLibraryController::class, 'deletePlan']);
     });
+    Route::group(['prefix' => 'v1/admin'], function() {
+        Route::group(['prefix' => 'plan-post'], function() {
+            Route::post('/store', [PlanPostController::class, 'storePostAdmin']);
+        });
+        Route::get('/list', [PlanLibraryController::class, 'getAllPlanLibrary']);
+        Route::post('/store', [PlanLibraryController::class, 'storePlanLibrary']);
+        Route::post('/bulk-store', [PlanLibraryController::class, 'bulkSotrePlanLibrary']);
+        Route::post('/import-excel', [PlanLibraryController::class, 'importExcelPlanLibrary']);
+        Route::post('/approve/{id}', [PlanLibraryController::class, 'planApprove']);
+        Route::delete('/delete/{id}', [PlanLibraryController::class, 'deletePlan']);
+    });
     
     Route::group(['prefix' => 'v1/design-library'], function() {
         Route::get('/list', [DesignLibraryController::class, 'getAllDesignLibrary']);
@@ -64,6 +76,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     });
     Route::group(['prefix' => 'v1/report'], function() {
         Route::get('/list-tasks', [ReportController::class, 'listReportTask']);
+        Route::get('/detail-report-plan/{client_user_id}', [ReportController::class, 'detailReportTaskPlan']);
     });
 
 });
